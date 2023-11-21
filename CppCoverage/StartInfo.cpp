@@ -25,7 +25,7 @@
 namespace fs = std::filesystem;
 
 namespace CppCoverage
-{	
+{
 	namespace
 	{
 		//-------------------------------------------------------------------------
@@ -46,7 +46,7 @@ namespace CppCoverage
 	//-------------------------------------------------------------------------
 	StartInfo::StartInfo(StartInfo&& startInfo)
 		: path_{ std::move(startInfo.path_) }
-		, arguments_( std::move(startInfo.arguments_) )
+		, arguments_(std::move(startInfo.arguments_))
 		, workingDirectory_{ std::move(startInfo.workingDirectory_) }
 	{
 	}
@@ -55,7 +55,7 @@ namespace CppCoverage
 	void StartInfo::SetWorkingDirectory(const fs::path& workingDirectory)
 	{
 		CheckPathExists("Working directory", workingDirectory);
-		workingDirectory_ = workingDirectory;					
+		workingDirectory_ = workingDirectory;
 	}
 
 	//-------------------------------------------------------------------------
@@ -96,7 +96,7 @@ namespace CppCoverage
 			ostr << arguments[i] << " ";
 		ostr << std::endl;
 		ostr << L"Working directory: ";
-		
+
 		if (startInfo.workingDirectory_)
 			ostr << *startInfo.workingDirectory_;
 		else

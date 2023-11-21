@@ -28,8 +28,8 @@
 
 namespace CppCoverage
 {
-	class Patterns;	
-	
+	class Patterns;
+
 	enum class LogLevel
 	{
 		Quiet,
@@ -44,7 +44,7 @@ namespace CppCoverage
 			const Patterns& modulePatterns,
 			const Patterns& sourcePatterns,
 			const StartInfo*);
-		
+
 		Options(Options&&) = default;
 		~Options();
 
@@ -54,15 +54,21 @@ namespace CppCoverage
 
 		void SetLogLevel(LogLevel);
 		LogLevel GetLogLevel() const;
-		
+
 		void EnablePlugingMode();
 		bool IsPlugingModeEnabled() const;
 
 		void EnableCoverChildrenMode();
 		bool IsCoverChildrenModeEnabled() const;
 
-        void EnableStopOnAssertMode();
-        bool IsStopOnAssertModeEnabled() const;
+		void EnableStopOnAssertMode();
+		bool IsStopOnAssertModeEnabled() const;
+
+		void EnableDumpOnCrash();
+		bool IsDumpOnCrashEnabled() const;
+
+		void SetDumpDirectory(const std::filesystem::path&);
+		const std::filesystem::path& GetDumpDirectory() const;
 
 		void DisableAggregateByFileMode();
 		bool IsAggregateByFileModeEnabled() const;
@@ -72,7 +78,7 @@ namespace CppCoverage
 
 		void AddExport(OptionsExport&&);
 		const std::vector<OptionsExport>& GetExports() const;
-		
+
 		void AddInputCoveragePath(const std::filesystem::path&);
 		const std::vector<std::filesystem::path>& GetInputCoveragePaths() const;
 
@@ -104,9 +110,11 @@ namespace CppCoverage
 		bool isCoverChildrenModeEnabled_;
 		bool isAggregateByFileModeEnabled_;
 		bool isContinueAfterCppExceptionModeEnabled_;
-        bool isStopOnAssertModeEnabled_;
-        bool isOptimizedBuildSupportEnabled_;
-        std::vector<OptionsExport> exports_;
+		bool isStopOnAssertModeEnabled_;
+		bool isDumpOnCrashEnabled_;
+		std::filesystem::path dumpDirectory_;
+		bool isOptimizedBuildSupportEnabled_;
+		std::vector<OptionsExport> exports_;
 		std::vector<std::filesystem::path> inputCoveragePaths_;
 		std::vector<UnifiedDiffSettings> unifiedDiffSettingsCollection_;
 		std::vector<std::wstring> excludedLineRegexes_;

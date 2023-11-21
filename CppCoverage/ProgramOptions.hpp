@@ -42,8 +42,10 @@ namespace CppCoverage
 		static const std::string WorkingDirectoryOption;
 		static const std::string CoverChildrenOption;
 		static const std::string NoAggregateByFileOption;
-        static const std::string StopOnAssertOption;
-        static const std::string ProgramToRunOption;
+		static const std::string StopOnAssertOption;
+		static const std::string DumpOnCrashOption;
+		static const std::string DumpDirectoryOption;
+		static const std::string ProgramToRunOption;
 		static const std::string ProgramToRunArgOption;
 		static const std::string InputCoverageValue;
 		static const std::string UnifiedDiffOption;
@@ -60,7 +62,7 @@ namespace CppCoverage
 			boost::program_options::variables_map& variables) const;
 
 		void FillVariableMap(std::istream&, boost::program_options::variables_map& variables) const;
-				
+
 		friend CPPCOVERAGE_DLL std::wostream& operator<<(std::wostream&, const ProgramOptions&);
 
 	private:
@@ -74,6 +76,6 @@ namespace CppCoverage
 		boost::program_options::options_description commandLineOptions_;
 		boost::program_options::options_description visibleOptions_;
 		boost::program_options::options_description configFileOptions_;
-		boost::program_options::positional_options_description positionalOptions_;		
+		boost::program_options::positional_options_description positionalOptions_;
 	};
 }

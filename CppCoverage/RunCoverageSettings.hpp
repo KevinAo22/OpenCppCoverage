@@ -41,8 +41,10 @@ namespace CppCoverage
 
 		void SetCoverChildren(bool);
 		void SetContinueAfterCppException(bool);
-        void SetStopOnAssert(bool);
-        void SetMaxUnmatchPathsForWarning(size_t);
+		void SetStopOnAssert(bool);
+		void SetDumpOnCrash(bool);
+		void SetDumpDirectory(const std::filesystem::path&);
+		void SetMaxUnmatchPathsForWarning(size_t);
 		void SetOptimizedBuildSupport(bool);
 
 		const StartInfo& GetStartInfo() const;
@@ -50,8 +52,10 @@ namespace CppCoverage
 		const std::vector<UnifiedDiffSettings>& GetUnifiedDiffSettings() const;
 		bool GetCoverChildren() const;
 		bool GetContinueAfterCppException() const;
-        bool GetStopOnAssert() const;
-        size_t GetMaxUnmatchPathsForWarning() const;
+		bool GetStopOnAssert() const;
+		bool GetDumpOnCrash() const;
+		const std::filesystem::path& GetDumpDirectory() const;
+		size_t GetMaxUnmatchPathsForWarning() const;
 		bool GetOptimizedBuildSupport() const;
 		const std::vector<std::wstring>& GetExcludedLineRegexes() const;
 		const std::vector<SubstitutePdbSourcePath>& GetSubstitutePdbSourcePaths() const;
@@ -62,8 +66,10 @@ namespace CppCoverage
 		std::vector<UnifiedDiffSettings> unifiedDiffSettings_;
 		bool coverChildren_;
 		bool continueAfterCppException_;
-        bool stopOnAssert_;
-        size_t maxUnmatchPathsForWarning_;
+		bool stopOnAssert_;
+		bool dumpOnCrash_;
+		std::filesystem::path dumpDirectory_;
+		size_t maxUnmatchPathsForWarning_;
 		bool optimizedBuildSupport_;
 		std::vector<std::wstring> excludedLineRegexes_;
 		std::vector<SubstitutePdbSourcePath> substitutePdbSourcePath_;

@@ -38,7 +38,7 @@ namespace CppCoverageTest
 			void Run(const std::wstring& commandLineArgument)
 			{
 				cov::StartInfo startInfo{ TestCoverageConsole::GetOutputBinaryPath() };
-				cov::Debugger debugger{ false, false, false };
+				cov::Debugger debugger{ false, false, false, false, L"" };
 
 				startInfo.AddArgument(commandLineArgument);
 				debugger.Debug(startInfo, *this);
@@ -46,7 +46,7 @@ namespace CppCoverageTest
 
 			//---------------------------------------------------------------------
 			virtual ExceptionType OnException(HANDLE hProcess, HANDLE hThread, const EXCEPTION_DEBUG_INFO& exceptionDebugInfo) override
-			{							
+			{
 				std::wostringstream ostr;
 
 				exceptionHandlerStatus_ = handler_.HandleException(hProcess, exceptionDebugInfo, ostr);
@@ -54,7 +54,7 @@ namespace CppCoverageTest
 
 				return IDebugEventsHandler::ExceptionType::NotHandled;;
 			}
-			
+
 			//-----------------------------------------------------------------
 			std::wstring HandleExceptionTwice(int errorCode, bool firstChange)
 			{
@@ -97,11 +97,11 @@ namespace CppCoverageTest
 	//-----------------------------------------------------------------------------
 	TEST_F(ExceptionHandlerTest, TestUnHandleSEHException)
 	{
-		Run(TestCoverageConsole::TestThrowUnHandledSEHException);	
+		Run(TestCoverageConsole::TestThrowUnHandledSEHException);
 		ASSERT_EQ(CppCoverage::ExceptionHandlerStatus::Error, exceptionHandlerStatus_);
 		ASSERT_NE(std::string::npos, message_.find(cov::ExceptionHandler::ExceptionAccesViolation));
 	}
-	
+
 	//-----------------------------------------------------------------------------
 	TEST_F(ExceptionHandlerTest, TestFormatMessage)
 	{
