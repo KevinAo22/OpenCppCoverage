@@ -28,9 +28,9 @@ namespace CppCoverageTest
 {
 	//-----------------------------------------------------------------------------
 	TEST(DebugerTest, Debug)
-	{		
+	{
 		cov::StartInfo startInfo{ TestCoverageConsole::GetOutputBinaryPath() };
-		cov::Debugger debugger{ false, false, false };
+		cov::Debugger debugger{ false, false, false, false, L"" };
 		DebugEventsHandlerMock debugEventsHandlerMock;
 
 		EXPECT_CALL(debugEventsHandlerMock, OnCreateProcess(testing::_));
@@ -43,5 +43,5 @@ namespace CppCoverageTest
 		debugger.Debug(startInfo, debugEventsHandlerMock);
 		ASSERT_EQ(0, debugger.GetRunningProcesses());
 		ASSERT_EQ(0, debugger.GetRunningThreads());
-	}	
+	}
 }

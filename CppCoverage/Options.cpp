@@ -16,8 +16,10 @@
 
 #include "stdafx.h"
 #include "Options.hpp"
-#include "CppCoverageException.hpp"
 #include "OptionsExport.hpp"
+#include "CppCoverageException.hpp"
+
+#include "Tools/Tool.hpp"
 
 namespace CppCoverage
 {
@@ -34,6 +36,13 @@ namespace CppCoverage
 			}
 			THROW("Invalid Log level.");
 		}
+
+		//-------------------------------------------------------------------------
+		void CheckPathExists(const std::string& context, const  std::filesystem::path& path)
+		{
+			if (!Tools::FileExists(path))
+				throw std::runtime_error(context + " \"" + path.string() + "\" does not exist");
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -41,18 +50,20 @@ namespace CppCoverage
 		const Patterns& modulePatterns,
 		const Patterns& sourcePatterns,
 		const StartInfo* startInfo)
-		: modules_{modulePatterns}
-		, sources_{sourcePatterns}		
+		: modules_{ modulePatterns }
+		, sources_{ sourcePatterns }
 		, logLevel_{ LogLevel::Normal }
-		, isPluginModeEnabled_{false}
-		, isCoverChildrenModeEnabled_{false}
-		, isAggregateByFileModeEnabled_{true}
-		, isContinueAfterCppExceptionModeEnabled_{false}
-		, isOptimizedBuildSupportEnabled_{false}
+		, isPluginModeEnabled_{ false }
+		, isCoverChildrenModeEnabled_{ false }
+		, isAggregateByFileModeEnabled_{ true }
+		, isContinueAfterCppExceptionModeEnabled_{ false }
+		, isStopOnAssertModeEnabled_{ false }
+		, isDumpOnCrashEnabled_{ false }
+		, isOptimizedBuildSupportEnabled_{ false }
 	{
 		if (startInfo)
 			optionalStartInfo_ = *startInfo;
-	}	
+	}
 
 	//-------------------------------------------------------------------------
 	Options::~Options() = default;
@@ -62,13 +73,13 @@ namespace CppCoverage
 	{
 		return modules_;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	const Patterns& Options::GetSourcePatterns() const
 	{
 		return sources_;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	const StartInfo* Options::GetStartInfo() const
 	{
@@ -128,31 +139,56 @@ namespace CppCoverage
 	{
 		isContinueAfterCppExceptionModeEnabled_ = true;
 	}
-	
-    //-------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------
 	bool Options::IsContinueAfterCppExceptionModeEnabled() const
 	{
 		return isContinueAfterCppExceptionModeEnabled_;
 	}
 
-    //-------------------------------------------------------------------------
-    void Options::EnableStopOnAssertMode()
-    {
-      isStopOnAssertModeEnabled_ = true;
-    }
-    
-    //-------------------------------------------------------------------------
-    bool Options::IsStopOnAssertModeEnabled() const
-    {
-      return isStopOnAssertModeEnabled_;
-    }
+	//-------------------------------------------------------------------------
+	void Options::EnableStopOnAssertMode()
+	{
+		isStopOnAssertModeEnabled_ = true;
+	}
 
-    //-------------------------------------------------------------------------
+	//-------------------------------------------------------------------------
+	bool Options::IsStopOnAssertModeEnabled() const
+	{
+		return isStopOnAssertModeEnabled_;
+	}
+
+	//-------------------------------------------------------------------------
+	void Options::EnableDumpOnCrash()
+	{
+		isDumpOnCrashEnabled_ = true;
+	}
+
+	//-------------------------------------------------------------------------
+	bool Options::IsDumpOnCrashEnabled() const
+	{
+		return isDumpOnCrashEnabled_;
+	}
+
+	//-------------------------------------------------------------------------
+	void Options::SetDumpDirectory(const std::filesystem::path& dumpDirectory)
+	{
+		CheckPathExists("Dump directory", dumpDirectory);
+		dumpDirectory_ = dumpDirectory;
+	}
+
+	//-------------------------------------------------------------------------
+	const std::filesystem::path& Options::GetDumpDirectory() const
+	{
+		return dumpDirectory_;
+	}
+
+	//-------------------------------------------------------------------------
 	void Options::AddExport(OptionsExport&& optionExport)
 	{
 		exports_.push_back(std::move(optionExport));
 	}
-	
+
 	//-------------------------------------------------------------------------
 	const std::vector<OptionsExport>& Options::GetExports() const
 	{
@@ -230,6 +266,8 @@ namespace CppCoverage
 		ostr << L"Cover Children: " << options.isCoverChildrenModeEnabled_ << std::endl;
 		ostr << L"Aggregate by file: " << options.isAggregateByFileModeEnabled_ << std::endl;
 		ostr << L"Continue after C++ exception: " << options.isContinueAfterCppExceptionModeEnabled_ << std::endl;
+		ostr << L"Create minidump on crash: " << options.isDumpOnCrashEnabled_ << std::endl;
+		ostr << L"The directory of minidump: " << options.dumpDirectory_ << std::endl;
 		ostr << L"Optimized build support: " << options.isOptimizedBuildSupportEnabled_ << std::endl;
 
 		ostr << L"Export: ";

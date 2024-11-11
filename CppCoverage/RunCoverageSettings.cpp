@@ -21,20 +21,23 @@ namespace CppCoverage
 {
 	//-------------------------------------------------------------------------
 	RunCoverageSettings::RunCoverageSettings(
-	    const StartInfo& startInfo,
-	    const CoverageFilterSettings& settings,
-	    const std::vector<UnifiedDiffSettings>& unifiedDiffSettings,
-	    const std::vector<std::wstring>& excludedLineRegexes,
-	    const std::vector<SubstitutePdbSourcePath>& substitutePdbSourcePath)
-	    : startInfo_{startInfo},
-	      coverageFilterSettings_{settings},
-	      unifiedDiffSettings_{unifiedDiffSettings},
-	      coverChildren_{false},
-	      continueAfterCppException_{false},
-	      maxUnmatchPathsForWarning_{0},
-	      optimizedBuildSupport_{false},
-	      excludedLineRegexes_{excludedLineRegexes},
-	      substitutePdbSourcePath_{substitutePdbSourcePath}
+		const StartInfo& startInfo,
+		const CoverageFilterSettings& settings,
+		const std::vector<UnifiedDiffSettings>& unifiedDiffSettings,
+		const std::vector<std::wstring>& excludedLineRegexes,
+		const std::vector<SubstitutePdbSourcePath>& substitutePdbSourcePath)
+		: startInfo_{ startInfo },
+		coverageFilterSettings_{ settings },
+		unifiedDiffSettings_{ unifiedDiffSettings },
+		coverChildren_{ false },
+		continueAfterCppException_{ false },
+		stopOnAssert_{ false },
+		dumpOnCrash_{ false },
+		dumpDirectory_{ L"" },
+		maxUnmatchPathsForWarning_{ 0 },
+		optimizedBuildSupport_{ false },
+		excludedLineRegexes_{ excludedLineRegexes },
+		substitutePdbSourcePath_{ substitutePdbSourcePath }
 	{
 	}
 
@@ -43,20 +46,32 @@ namespace CppCoverage
 	{
 		coverChildren_ = coverChildren;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	void RunCoverageSettings::SetContinueAfterCppException(bool continueAfterCppException)
 	{
 		continueAfterCppException_ = continueAfterCppException;
 	}
-	
-    //-------------------------------------------------------------------------
-    void RunCoverageSettings::SetStopOnAssert(bool stopOnAssert)
-    {
-      stopOnAssert_ = stopOnAssert;
-    }
 
-    //-------------------------------------------------------------------------
+	//-------------------------------------------------------------------------
+	void RunCoverageSettings::SetStopOnAssert(bool stopOnAssert)
+	{
+		stopOnAssert_ = stopOnAssert;
+	}
+
+	//-------------------------------------------------------------------------
+	void RunCoverageSettings::SetDumpOnCrash(bool dumpOnCrash)
+	{
+		dumpOnCrash_ = dumpOnCrash;
+	}
+
+	//-------------------------------------------------------------------------
+	void RunCoverageSettings::SetDumpDirectory(const std::filesystem::path& dumpDirectory)
+	{
+		dumpDirectory_ = dumpDirectory;
+	}
+
+	//-------------------------------------------------------------------------
 	void RunCoverageSettings::SetMaxUnmatchPathsForWarning(size_t maxUnmatchPathsForWarning)
 	{
 		maxUnmatchPathsForWarning_ = maxUnmatchPathsForWarning;
@@ -73,38 +88,50 @@ namespace CppCoverage
 	{
 		return startInfo_;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	const CoverageFilterSettings& RunCoverageSettings::GetCoverageFilterSettings() const
 	{
 		return coverageFilterSettings_;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	const std::vector<UnifiedDiffSettings>& RunCoverageSettings::GetUnifiedDiffSettings() const
 	{
 		return unifiedDiffSettings_;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	bool RunCoverageSettings::GetCoverChildren() const
 	{
 		return coverChildren_;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	bool RunCoverageSettings::GetContinueAfterCppException() const
 	{
 		return continueAfterCppException_;
 	}
-	
-    //-------------------------------------------------------------------------
-    bool RunCoverageSettings::GetStopOnAssert() const
-    {
-      return stopOnAssert_;
-    }
-    
-    //-------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------
+	bool RunCoverageSettings::GetStopOnAssert() const
+	{
+		return stopOnAssert_;
+	}
+
+	//-------------------------------------------------------------------------
+	bool RunCoverageSettings::GetDumpOnCrash() const
+	{
+		return dumpOnCrash_;
+	}
+
+	//-------------------------------------------------------------------------
+	const std::filesystem::path& RunCoverageSettings::GetDumpDirectory() const
+	{
+		return dumpDirectory_;
+	}
+
+	//-------------------------------------------------------------------------
 	size_t RunCoverageSettings::GetMaxUnmatchPathsForWarning() const
 	{
 		return maxUnmatchPathsForWarning_;

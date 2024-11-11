@@ -44,16 +44,16 @@ namespace CppCoverage
 {
 	//-------------------------------------------------------------------------
 	CodeCoverageRunner::CodeCoverageRunner(
-	    std::shared_ptr<Tools::WarningManager> warningManager)
-	    : warningManager_{warningManager},
-	      filterAssistant_{
-	          std::make_shared<FilterAssistant>(std::make_shared<FileSystem>())}
+		std::shared_ptr<Tools::WarningManager> warningManager)
+		: warningManager_{ warningManager },
+		filterAssistant_{
+			std::make_shared<FilterAssistant>(std::make_shared<FileSystem>()) }
 	{
 		executedAddressManager_ = std::make_shared<ExecutedAddressManager>();
 		exceptionHandler_ = std::make_unique<ExceptionHandler>();
 		breakpoint_ = std::make_shared<BreakPoint>();
 	}
-	
+
 	//-------------------------------------------------------------------------
 	CodeCoverageRunner::~CodeCoverageRunner()
 	{
@@ -63,19 +63,19 @@ namespace CppCoverage
 	Plugin::CoverageData CodeCoverageRunner::RunCoverage(
 		const RunCoverageSettings& settings)
 	{
-		Debugger debugger{ settings.GetCoverChildren(), settings.GetContinueAfterCppException(), settings.GetStopOnAssert()};
+		Debugger debugger{ settings.GetCoverChildren(), settings.GetContinueAfterCppException(), settings.GetStopOnAssert(), settings.GetDumpOnCrash(), settings.GetDumpDirectory() };
 
 		coverageFilterManager_ = std::make_shared<CoverageFilterManager>(
 			settings.GetCoverageFilterSettings(),
-			settings.GetUnifiedDiffSettings(), 
+			settings.GetUnifiedDiffSettings(),
 			settings.GetExcludedLineRegexes(),
 			settings.GetOptimizedBuildSupport());
 
 		monitoredLineRegister_ = std::make_unique<MonitoredLineRegister>(
-		    breakpoint_,
-		    executedAddressManager_,
-		    coverageFilterManager_,
-		    std::make_unique<DebugInformationEnumerator>(settings.GetSubstitutePdbSourcePaths()),
+			breakpoint_,
+			executedAddressManager_,
+			coverageFilterManager_,
+			std::make_unique<DebugInformationEnumerator>(settings.GetSubstitutePdbSourcePaths()),
 			filterAssistant_);
 
 		const auto& startInfo = settings.GetStartInfo();
@@ -85,7 +85,7 @@ namespace CppCoverage
 		auto warningMessageLines = coverageFilterManager_->ComputeWarningMessageLines(
 			settings.GetMaxUnmatchPathsForWarning());
 		for (const auto& line : warningMessageLines)
-				LOG_WARNING << line;
+			LOG_WARNING << line;
 		auto filterAdviceMessage = filterAssistant_->GetAdviceMessage();
 		if (filterAdviceMessage)
 			warningManager_->AddWarning(*filterAdviceMessage);
@@ -100,7 +100,7 @@ namespace CppCoverage
 
 		LoadModule(hProcess, processDebugInfo.hFile, lpBaseOfImage);
 	}
-	
+
 	//-------------------------------------------------------------------------
 	void CodeCoverageRunner::OnExitProcess(HANDLE hProcess, HANDLE, const EXIT_PROCESS_DEBUG_INFO&)
 	{
@@ -110,13 +110,13 @@ namespace CppCoverage
 
 	//-------------------------------------------------------------------------
 	void CodeCoverageRunner::OnLoadDll(
-		HANDLE hProcess, 
-		HANDLE hThread, 
+		HANDLE hProcess,
+		HANDLE hThread,
 		const LOAD_DLL_DEBUG_INFO& dllDebugInfo)
 	{
 		LoadModule(hProcess, dllDebugInfo.hFile, dllDebugInfo.lpBaseOfDll);
 	}
-	
+
 	//-------------------------------------------------------------------------
 	void CodeCoverageRunner::OnUnloadDll(
 		HANDLE hProcess,
@@ -128,43 +128,43 @@ namespace CppCoverage
 
 	//-------------------------------------------------------------------------
 	IDebugEventsHandler::ExceptionType CodeCoverageRunner::OnException(
-		HANDLE hProcess, 
-		HANDLE hThread, 
+		HANDLE hProcess,
+		HANDLE hThread,
 		const EXCEPTION_DEBUG_INFO& exceptionDebugInfo)
 	{
 		std::wostringstream ostr;
-		
+
 		auto status = exceptionHandler_->HandleException(hProcess, exceptionDebugInfo, ostr);
 
 		switch (status)
 		{
-			case CppCoverage::ExceptionHandlerStatus::BreakPoint:
-			{
-				if (OnBreakPoint(exceptionDebugInfo, hProcess, hThread))
-					return IDebugEventsHandler::ExceptionType::BreakPoint;
-				return IDebugEventsHandler::ExceptionType::InvalidBreakPoint;
-			}
-			case CppCoverage::ExceptionHandlerStatus::FirstChanceException:
-			{
-				return IDebugEventsHandler::ExceptionType::NotHandled;
-			}
-			case CppCoverage::ExceptionHandlerStatus::Error:
-			{
-				LOG_ERROR << ostr.str();
-				
-				return IDebugEventsHandler::ExceptionType::Error;
-			}
-			case CppCoverage::ExceptionHandlerStatus::CppError:
-			{
-				LOG_ERROR << ostr.str();
+		case CppCoverage::ExceptionHandlerStatus::BreakPoint:
+		{
+			if (OnBreakPoint(exceptionDebugInfo, hProcess, hThread))
+				return IDebugEventsHandler::ExceptionType::BreakPoint;
+			return IDebugEventsHandler::ExceptionType::InvalidBreakPoint;
+		}
+		case CppCoverage::ExceptionHandlerStatus::FirstChanceException:
+		{
+			return IDebugEventsHandler::ExceptionType::NotHandled;
+		}
+		case CppCoverage::ExceptionHandlerStatus::Error:
+		{
+			LOG_ERROR << ostr.str();
 
-				return IDebugEventsHandler::ExceptionType::CppError;
-			}
+			return IDebugEventsHandler::ExceptionType::Error;
+		}
+		case CppCoverage::ExceptionHandlerStatus::CppError:
+		{
+			LOG_ERROR << ostr.str();
+
+			return IDebugEventsHandler::ExceptionType::CppError;
+		}
 		}
 
 		return IDebugEventsHandler::ExceptionType::NotHandled;
 	}
-	
+
 	//-------------------------------------------------------------------------
 	bool CodeCoverageRunner::OnBreakPoint(
 		const EXCEPTION_DEBUG_INFO& exceptionDebugInfo,
@@ -188,8 +188,8 @@ namespace CppCoverage
 
 	//-------------------------------------------------------------------------
 	void CodeCoverageRunner::LoadModule(HANDLE hProcess,
-	                                    HANDLE hFile,
-	                                    void* baseOfImage)
+		HANDLE hFile,
+		void* baseOfImage)
 	{
 		HandleInformation handleInformation;
 
@@ -199,7 +199,7 @@ namespace CppCoverage
 		if (isSelected)
 		{
 			isSelected = monitoredLineRegister_->RegisterLineToMonitor(
-			    filename, hProcess, baseOfImage);
+				filename, hProcess, baseOfImage);
 		}
 		filterAssistant_->OnNewModule(filename, isSelected);
 	}

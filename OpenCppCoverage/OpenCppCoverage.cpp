@@ -58,7 +58,7 @@ namespace OpenCppCoverage
 			{
 				auto path = startInfo->GetPath();
 				fs::path runningCommandFilenamePath = path.filename().replace_extension("");
-				
+
 				return runningCommandFilenamePath.wstring();
 			}
 
@@ -79,20 +79,20 @@ namespace OpenCppCoverage
 
 		//-----------------------------------------------------------------------------
 		void
-		Export(const cov::Options& options,
-		       const Exporter::ExporterPluginManager& exporterPluginManager,
-		       const Plugin::CoverageData& coverage)
+			Export(const cov::Options& options,
+				const Exporter::ExporterPluginManager& exporterPluginManager,
+				const Plugin::CoverageData& coverage)
 		{
 			const auto& exports = options.GetExports();
 			std::map<cov::OptionsExportType, std::unique_ptr<Exporter::IExporter>> exporters;
-			
-			exporters.emplace(cov::OptionsExportType::Html, 
-				std::unique_ptr<Exporter::IExporter>(std::make_unique<Exporter::HtmlExporter>( GetTemplateFolder() )));
-			exporters.emplace(cov::OptionsExportType::Cobertura, 
+
+			exporters.emplace(cov::OptionsExportType::Html,
+				std::unique_ptr<Exporter::IExporter>(std::make_unique<Exporter::HtmlExporter>(GetTemplateFolder())));
+			exporters.emplace(cov::OptionsExportType::Cobertura,
 				std::unique_ptr<Exporter::IExporter>(std::make_unique<Exporter::CoberturaExporter>()));
 			exporters.emplace(cov::OptionsExportType::Binary,
 				std::unique_ptr<Exporter::IExporter>(std::make_unique<Exporter::BinaryExporter>()));
-			
+
 			auto defaultPathPrefix = GetDefaultPathPrefix(options);
 
 			for (const auto& singleExport : exports)
@@ -102,14 +102,14 @@ namespace OpenCppCoverage
 
 				if (exportType == cov::OptionsExportType::Plugin)
 					exporterPluginManager.Export(
-					    singleExport.GetName(), coverage, parameter);
+						singleExport.GetName(), coverage, parameter);
 				else
 				{
 					const auto& exporter = exporters.at(exportType);
 					auto output =
-					    (parameter)
-					        ? fs::path{*parameter}
-					        : exporter->GetDefaultPath(defaultPathPrefix);
+						(parameter)
+						? fs::path{ *parameter }
+					: exporter->GetDefaultPath(defaultPathPrefix);
 
 					exporter->Export(coverage, output);
 				}
@@ -123,7 +123,7 @@ namespace OpenCppCoverage
 			Exporter::CoverageDataDeserializer coverageDataDeserializer;
 
 			for (const auto& path : options.GetInputCoveragePaths())
-			{				
+			{
 				auto errorMsg = "Cannot extract coverage data from " + path.string();
 
 				LOG_INFO << L"Load coverage file: " << path.wstring();
@@ -139,8 +139,8 @@ namespace OpenCppCoverage
 
 			switch (options.GetLogLevel())
 			{
-				case cov::LogLevel::Verbose: logLevel = logging::trivial::debug; break;
-				case cov::LogLevel::Quiet: logLevel = logging::trivial::error; break;
+			case cov::LogLevel::Verbose: logLevel = logging::trivial::debug; break;
+			case cov::LogLevel::Quiet: logLevel = logging::trivial::error; break;
 			}
 
 			Tools::InitConsoleAndFileLog(L"LastCoverageResults.log");
@@ -149,14 +149,14 @@ namespace OpenCppCoverage
 
 		//-----------------------------------------------------------------------------
 		int Run(const cov::Options& options,
-		        const Exporter::ExporterPluginManager& exporterPluginManager,
-		        std::shared_ptr<Tools::WarningManager> warningManager)
+			const Exporter::ExporterPluginManager& exporterPluginManager,
+			std::shared_ptr<Tools::WarningManager> warningManager)
 		{
 			InitLogger(options);
 
 			auto coveraDatas = LoadInputCoverageDatas(options);
 			const auto* startInfo = options.GetStartInfo();
-			
+
 			std::wostringstream ostr;
 			ostr << std::endl << options;
 			LOG_INFO << L"Start Program:" << ostr.str();
@@ -167,20 +167,22 @@ namespace OpenCppCoverage
 
 			if (startInfo)
 			{
-				size_t maxUnmatchPathsForWarning = (options.GetLogLevel() == cov::LogLevel::Verbose) 
+				size_t maxUnmatchPathsForWarning = (options.GetLogLevel() == cov::LogLevel::Verbose)
 					? std::numeric_limits<size_t>::max() : 30;
 
 				cov::RunCoverageSettings runCoverageSettings(
-				    *startInfo,
-				    coverageFilterSettings,
-				    options.GetUnifiedDiffSettingsCollection(),
-				    options.GetExcludedLineRegexes(),
-				    options.GetSubstitutePdbSourcePaths());
+					*startInfo,
+					coverageFilterSettings,
+					options.GetUnifiedDiffSettingsCollection(),
+					options.GetExcludedLineRegexes(),
+					options.GetSubstitutePdbSourcePaths());
 
 				runCoverageSettings.SetCoverChildren(options.IsCoverChildrenModeEnabled());
 				runCoverageSettings.SetContinueAfterCppException(options.IsContinueAfterCppExceptionModeEnabled());
-                runCoverageSettings.SetStopOnAssert(options.IsStopOnAssertModeEnabled());
-                runCoverageSettings.SetMaxUnmatchPathsForWarning(maxUnmatchPathsForWarning);
+				runCoverageSettings.SetStopOnAssert(options.IsStopOnAssertModeEnabled());
+				runCoverageSettings.SetDumpOnCrash(options.IsDumpOnCrashEnabled());
+				runCoverageSettings.SetDumpDirectory(options.GetDumpDirectory());
+				runCoverageSettings.SetMaxUnmatchPathsForWarning(maxUnmatchPathsForWarning);
 				runCoverageSettings.SetOptimizedBuildSupport(options.IsOptimizedBuildSupportEnabled());
 				auto coverageData = codeCoverageRunner.RunCoverage(runCoverageSettings);
 				exitCode = coverageData.GetExitCode();
@@ -205,21 +207,21 @@ namespace OpenCppCoverage
 
 	//-----------------------------------------------------------------------------
 	int OpenCppCoverage::Run(int argc,
-	                         const char** argv,
-	                         std::wostream* emptyOptionsExplanation) const
+		const char** argv,
+		std::wostream* emptyOptionsExplanation) const
 	{
 		auto warningManager = std::make_shared<Tools::WarningManager>();
 		std::vector<std::unique_ptr<cov::IOptionParser>> optionParsers;
 
 		Exporter::ExporterPluginManager exporterPluginManager{
-		    Exporter::PluginLoader<Plugin::IExportPlugin>{},
-		    GetPluginsExportFolder()};
+			Exporter::PluginLoader<Plugin::IExportPlugin>{},
+			GetPluginsExportFolder() };
 
 		auto exportPluginDescriptions =
-		    exporterPluginManager.CreateExportPluginDescriptions();
+			exporterPluginManager.CreateExportPluginDescriptions();
 		optionParsers.push_back(std::make_unique<cov::ExportOptionParser>(
-		    std::move(exportPluginDescriptions)));
-		cov::OptionsParser optionsParser{warningManager, std::move(optionParsers)};
+			std::move(exportPluginDescriptions)));
+		cov::OptionsParser optionsParser{ warningManager, std::move(optionParsers) };
 
 		auto options = optionsParser.Parse(argc, argv, emptyOptionsExplanation);
 		auto status = FailureExitCode;

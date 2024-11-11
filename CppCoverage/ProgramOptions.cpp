@@ -30,10 +30,10 @@ namespace CppCoverage
 	namespace
 	{
 		using T_Strings = std::vector<std::string>;
-		
+
 		//---------------------------------------------------------------------
 		void FillGenericOptions(po::options_description& options)
-		{			
+		{
 			options.add_options()
 				((ProgramOptions::VerboseOption + "," + ProgramOptions::VerboseShortOption).c_str(), "Verbose mode.")
 				((ProgramOptions::QuietOption + "," + ProgramOptions::QuietShortOption).c_str(), "Quiet mode.")
@@ -55,48 +55,50 @@ namespace CppCoverage
 
 		//---------------------------------------------------------------------
 		void
-		FillConfigurationOptions(po::options_description& options,
-			const std::vector<std::unique_ptr<IOptionParser>>& optionParsers)
+			FillConfigurationOptions(po::options_description& options,
+				const std::vector<std::unique_ptr<IOptionParser>>& optionParsers)
 		{
 			const std::string all = "*";
 
 			options.add_options()
 				(ProgramOptions::SelectedModulesOption.c_str(),
-				po::value<T_Strings>()->default_value({ all }, all)->composing(),
-				"The pattern that module's paths should match. Can have multiple occurrences.")
+					po::value<T_Strings>()->default_value({ all }, all)->composing(),
+					"The pattern that module's paths should match. Can have multiple occurrences.")
 				(ProgramOptions::ExcludedModulesOption.c_str(),
-				po::value<T_Strings>()->composing(),
-				"The pattern that module's paths should NOT match. Can have multiple occurrences.")
+					po::value<T_Strings>()->composing(),
+					"The pattern that module's paths should NOT match. Can have multiple occurrences.")
 				(ProgramOptions::SelectedSourcesOption.c_str(),
-				po::value<T_Strings>()->default_value({ all }, all)->composing(),
-				"The pattern that source's paths should match. Can have multiple occurrences.")
+					po::value<T_Strings>()->default_value({ all }, all)->composing(),
+					"The pattern that source's paths should match. Can have multiple occurrences.")
 				(ProgramOptions::ExcludedSourcesOption.c_str(),
-				po::value<T_Strings>()->composing(),
-				"The pattern that source's paths should NOT match. Can have multiple occurrences.")
+					po::value<T_Strings>()->composing(),
+					"The pattern that source's paths should NOT match. Can have multiple occurrences.")
 				(ProgramOptions::InputCoverageValue.c_str(), po::value<T_Strings>()->composing(),
-				("A output path of " + ExportOptionParser::ExportTypeOption + "=" + ExportOptionParser::ExportTypeBinaryValue +
-				". This coverage data will be merged with the current one. Can have multiple occurrences.").c_str())
+					("A output path of " + ExportOptionParser::ExportTypeOption + "=" + ExportOptionParser::ExportTypeBinaryValue +
+						". This coverage data will be merged with the current one. Can have multiple occurrences.").c_str())
 				(ProgramOptions::WorkingDirectoryOption.c_str(), po::value<std::string>(), "The program working directory.")
 				(ProgramOptions::CoverChildrenOption.c_str(), "Enable code coverage for children processes.")
 				(ProgramOptions::NoAggregateByFileOption.c_str(), "Do not aggregate coverage for same file path.")
-                (ProgramOptions::StopOnAssertOption.c_str(), "Do not continue after DebugBreak() or assert().")
-              (ProgramOptions::UnifiedDiffOption.c_str(),
+				(ProgramOptions::StopOnAssertOption.c_str(), "Do not continue after DebugBreak() or assert().")
+				(ProgramOptions::DumpOnCrashOption.c_str(), "Create a minidump on crash.")
+				(ProgramOptions::DumpDirectoryOption.c_str(), po::value<std::string>(), "Set the directory of minidump.")
+				(ProgramOptions::UnifiedDiffOption.c_str(),
 					po::value<T_Strings>()->composing(), GetUnifiedDiffHelp().c_str())
 				(ProgramOptions::ContinueAfterCppExceptionOption.c_str(), "Try to continue after throwing a C++ exception.")
-				(ProgramOptions::OptimizedBuildOption.c_str(), 
+				(ProgramOptions::OptimizedBuildOption.c_str(),
 					"Enable heuristics to support optimized build. See documentation for restrictions.")
 				(ProgramOptions::ExcludedLineRegexOption.c_str(), po::value<T_Strings>()->composing(),
 					"Exclude all lines match the regular expression. Regular expression must match the whole line.")
 				(ProgramOptions::SubstitutePdbSourcePathOption.c_str(), po::value<T_Strings>()->composing(),
-					"Substitute the starting path defined in the pdb by a local path.\nFormat: <pdbStartPath>?<localPath>. " 
+					"Substitute the starting path defined in the pdb by a local path.\nFormat: <pdbStartPath>?<localPath>. "
 					"Can have multiple occurrences.");
-				for (const auto& optionParser : optionParsers)
-					optionParser->AddOption(options);
+			for (const auto& optionParser : optionParsers)
+				optionParser->AddOption(options);
 		}
 
 		//-------------------------------------------------------------------------
 		void FillHiddenOptions(po::options_description& options)
-		{						
+		{
 			options.add_options()
 				((ProgramOptions::PluginOption).c_str(), "Plugin mode.")
 				(ProgramOptions::ProgramToRunOption.c_str(), po::value<std::string>())
@@ -116,7 +118,7 @@ namespace CppCoverage
 	const std::string ProgramOptions::PluginOption = "plugin";
 	const std::string ProgramOptions::HelpOption = "help";
 	const std::string ProgramOptions::HelpShortOption = "h";
-	const std::string ProgramOptions::ConfigFileOption = "config_file";	
+	const std::string ProgramOptions::ConfigFileOption = "config_file";
 	const std::string ProgramOptions::WorkingDirectoryOption = "working_dir";
 	const std::string ProgramOptions::CoverChildrenOption = "cover_children";
 	const std::string ProgramOptions::NoAggregateByFileOption = "no_aggregate_by_file";
@@ -128,23 +130,25 @@ namespace CppCoverage
 	const std::string ProgramOptions::OptimizedBuildOption = "optimized_build";
 	const std::string ProgramOptions::ExcludedLineRegexOption = "excluded_line_regex";
 	const std::string ProgramOptions::SubstitutePdbSourcePathOption = "substitute_pdb_source_path";
-    const std::string ProgramOptions::StopOnAssertOption = "stop_on_assert";
+	const std::string ProgramOptions::StopOnAssertOption = "stop_on_assert";
+	const std::string ProgramOptions::DumpOnCrashOption = "dump_on_crash";
+	const std::string ProgramOptions::DumpDirectoryOption = "dump_directory";
 
 	//-------------------------------------------------------------------------
 	ProgramOptions::ProgramOptions(
-	    const std::vector<std::unique_ptr<IOptionParser>>& optionParsers)
+		const std::vector<std::unique_ptr<IOptionParser>>& optionParsers)
 		: visibleOptions_{ "Usage: [options] -- program_to_run optional_arguments" }
-		, configurationOptions_{"Command line and configuration file"}
-		, hiddenOptions_{"Hidden"}
-		, genericOptions_{"Command line only"}
-	{				
+		, configurationOptions_{ "Command line and configuration file" }
+		, hiddenOptions_{ "Hidden" }
+		, genericOptions_{ "Command line only" }
+	{
 		FillGenericOptions(genericOptions_);
 		FillConfigurationOptions(configurationOptions_, optionParsers);
 		FillHiddenOptions(hiddenOptions_);
 
 		positionalOptions_.add(ProgramToRunOption.c_str(), 1);
 		positionalOptions_.add(ProgramToRunArgOption.c_str(), -1);
-		
+
 		commandLineOptions_.add(genericOptions_).add(configurationOptions_).add(hiddenOptions_);
 		configFileOptions_.add(configurationOptions_).add(hiddenOptions_);
 		visibleOptions_.add(genericOptions_).add(configurationOptions_);
@@ -155,12 +159,12 @@ namespace CppCoverage
 		int argc,
 		const char** argv,
 		po::variables_map& variables) const
-	{					
+	{
 		po::store(po::command_line_parser(argc, argv)
 			.options(commandLineOptions_)
 			.positional(positionalOptions_)
 			.run(), variables);
-		po::notify(variables);		
+		po::notify(variables);
 	}
 
 	//-------------------------------------------------------------------------
@@ -171,7 +175,7 @@ namespace CppCoverage
 		po::store(po::parse_config_file(istr, configFileOptions_), variables);
 		po::notify(variables);
 	}
-	
+
 	//-------------------------------------------------------------------------
 	std::wostream& operator<<(
 		std::wostream& ostr,

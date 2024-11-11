@@ -40,7 +40,7 @@ namespace CppCoverageTest
 		struct DebugEventsHandler : public cov::IDebugEventsHandler
 		{
 			explicit DebugEventsHandler(TestTools::T_HandlesFct action)
-			: action_(action)
+				: action_(action)
 			{
 			}
 
@@ -61,7 +61,7 @@ namespace CppCoverageTest
 		void GetHandles(const std::filesystem::path& path, TestTools::T_HandlesFct action)
 		{
 			cov::StartInfo startInfo{ path };
-			cov::Debugger debugger{ false, false, false };
+			cov::Debugger debugger{ false, false, false, false, L"" };
 			DebugEventsHandler debugEventsHandler{ action };
 
 			debugger.Debug(startInfo, debugEventsHandler);
@@ -117,8 +117,8 @@ namespace CppCoverageTest
 			const CoverageArgs& args)
 		{
 			cov::CodeCoverageRunner codeCoverageRunner{
-			    std::make_shared<Tools::WarningManager>()};
-			cov::Patterns modulePatterns{false};
+				std::make_shared<Tools::WarningManager>() };
+			cov::Patterns modulePatterns{ false };
 			cov::Patterns sourcePatterns{ false };
 
 			for (auto modulePattern : args.modulePatternCollection_)
